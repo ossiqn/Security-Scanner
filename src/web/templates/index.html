@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="OSSiqn">
+    <meta name="description" content="ScanLine OSINT Security Scanner — Developed by OSSiqn">
+    <meta name="generator" content="ScanLine by OSSiqn | github.com/ossiqn">
+    <title>ScanLine — OSINT Scanner by OSSiqn</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="scanline-overlay"></div>
+    <div class="crt-effect"></div>
+
+    <header class="header">
+        <div class="header-logo">
+            <span class="logo-bracket">[</span>
+            <span class="logo-text">SCAN</span>
+            <span class="logo-accent">LINE</span>
+            <span class="logo-bracket">]</span>
+            <span class="logo-owner">by OSSiqn</span>
+        </div>
+        <div class="header-status">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span class="status-text" id="statusText">CONNECTING...</span>
+        </div>
+        <div class="header-right">
+            <span class="header-brand">OSSiqn · github.com/ossiqn</span>
+            <div class="header-time" id="headerTime"></div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="stats-panel">
+                <div class="panel-title"><span class="panel-icon">◈</span> SYSTEM STATUS</div>
+                <div class="stat-item">
+                    <span class="stat-label">TOTAL FINDINGS</span>
+                    <span class="stat-value" id="totalFindings">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">LAST 24H</span>
+                    <span class="stat-value" id="recent24h">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">SCAN STATUS</span>
+                    <span class="stat-value scan-status" id="scanStatus">IDLE</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">CURRENT TASK</span>
+                    <span class="stat-value small-text" id="currentTask">---</span>
+                </div>
+            </div>
+
+            <div class="severity-panel">
+                <div class="panel-title"><span class="panel-icon">◈</span> SEVERITY MATRIX</div>
+                <div class="severity-item critical" onclick="filterBySeverity('critical')">
+                    <span class="sev-dot"></span><span class="sev-label">CRITICAL</span>
+                    <span class="sev-count" id="criticalCount">0</span>
+                </div>
+                <div class="severity-item high" onclick="filterBySeverity('high')">
+                    <span class="sev-dot"></span><span class="sev-label">HIGH</span>
+                    <span class="sev-count" id="highCount">0</span>
+                </div>
+                <div class="severity-item medium" onclick="filterBySeverity('medium')">
+                    <span class="sev-dot"></span><span class="sev-label">MEDIUM</span>
+                    <span class="sev-count" id="mediumCount">0</span>
+                </div>
+                <div class="severity-item low" onclick="filterBySeverity('low')">
+                    <span class="sev-dot"></span><span class="sev-label">LOW</span>
+                    <span class="sev-count" id="lowCount">0</span>
+                </div>
+                <div class="severity-item all active" onclick="filterBySeverity(null)">
+                    <span class="sev-dot"></span><span class="sev-label">ALL</span>
+                    <span class="sev-count" id="allCount">0</span>
+                </div>
+            </div>
+
+            <div class="source-panel">
+                <div class="panel-title"><span class="panel-icon">◈</span> DATA SOURCES</div>
+                <div class="source-item" onclick="filterBySource('github')">
+                    <span class="source-icon">⬡</span> GITHUB CODE
+                </div>
+                <div class="source-item" onclick="filterBySource('github_gist')">
+                    <span class="source-icon">⬡</span> GITHUB GISTS
+                </div>
+                <div class="source-item" onclick="filterBySource('pastebin')">
+                    <span class="source-icon">⬡</span> PASTEBIN
+                </div>
+                <div class="source-item" onclick="filterBySource('ssl_scanner')">
+                    <span class="source-icon">⬡</span> SSL SCANNER
+                </div>
+                <div class="source-item" onclick="filterBySource('header_scanner')">
+                    <span class="source-icon">⬡</span> HTTP HEADERS
+                </div>
+                <div class="source-item" onclick="filterBySource(null)">
+                    <span class="source-icon">⬡</span> ALL SOURCES
+                </div>
+            </div>
+
+            <div class="ossiqn-badge">
+                <div class="badge-title">⚙ PRODUCED BY</div>
+                <div class="badge-name">OSSiqn</div>
+                <div class="badge-url">github.com/ossiqn</div>
+                <div class="badge-version">ScanLine v1.0.0</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-header">
+                <div class="content-title">
+                    <span class="terminal-prompt">root@scanline:~$</span>
+                    <span class="terminal-command"> ./scan --all-sources --live --producer=OSSiqn</span>
+                    <span class="cursor-blink">_</span>
+                </div>
+                <div class="content-controls">
+                    <button class="btn-scan" onclick="refreshFindings()">⟳ REFRESH</button>
+                    <button class="btn-export" onclick="exportFindings()">⬇ EXPORT</button>
+                </div>
+            </div>
+
+            <div class="live-feed-header">
+                <span class="live-dot"></span>
+                <span>LIVE FEED</span>
+                <span class="feed-producer">by OSSiqn</span>
+                <span class="feed-count" id="feedCount">0 findings</span>
+            </div>
+
+            <div class="findings-container" id="findingsContainer">
+                <div class="loading-state" id="loadingState">
+                    <div class="loading-text">INITIALIZING SCANLINE...</div>
+                    <div class="loading-sub">Produced by OSSiqn</div>
+                    <div class="loading-bar">
+                        <div class="loading-progress"></div>
+                    </div>
+                </div>
+                <div id="findingsList"></div>
+                <div class="empty-state" id="emptyState" style="display:none;">
+                    <div class="empty-icon">⬡</div>
+                    <div class="empty-text">NO FINDINGS DETECTED</div>
+                    <div class="empty-sub">Scanner is actively monitoring... · OSSiqn</div>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <button class="btn-page" id="prevBtn" onclick="changePage(-1)" disabled>◄ PREV</button>
+                <span class="page-info" id="pageInfo">Page 1</span>
+                <button class="btn-page" id="nextBtn" onclick="changePage(1)">NEXT ►</button>
+            </div>
+        </main>
+
+        <aside class="detail-panel" id="detailPanel">
+            <div class="panel-title">
+                <span class="panel-icon">◈</span> FINDING DETAIL
+                <button class="close-detail" onclick="closeDetail()">✕</button>
+            </div>
+            <div class="detail-content" id="detailContent">
+                <div class="detail-empty">Select a finding to view details</div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="terminal-bar">
+        <div class="terminal-log" id="terminalLog">
+            <span class="log-prefix">[SYS]</span> ScanLine initialized · Produced by OSSiqn · github.com/ossiqn
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

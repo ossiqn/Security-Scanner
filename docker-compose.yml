@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  scanline:
+    build: .
+    container_name: scanline
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./config.yml:/app/config.yml:ro
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - PYTHONUNBUFFERED=1
+    networks:
+      - scanline-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  scanline-net:
+    driver: bridge

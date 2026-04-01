@@ -1,0 +1,58 @@
+scanner:
+  github:
+    enabled: true
+    rate_limit_delay: 2
+    max_results_per_query: 100
+    search_queries:
+      - "api_key password secret"
+      - "AWS_SECRET_ACCESS_KEY"
+      - "private_key BEGIN RSA"
+      - "database_url postgresql"
+      - "TELEGRAM_BOT_TOKEN"
+      - "discord_token"
+      - "stripe_secret_key"
+      - "twilio_auth_token"
+      - "sendgrid_api_key"
+      - "mailgun_api_key"
+      - "firebase_api_key"
+      - "mongodb+srv password"
+      - "redis_url password"
+      - "jwt_secret"
+      - "encryption_key"
+
+  leak:
+    enabled: true
+    sources:
+      - pastebin
+      - github_gists
+    check_interval: 300
+
+  vuln:
+    enabled: true
+    shodan_enabled: false
+    censys_enabled: false
+
+notifications:
+  discord:
+    enabled: false
+    webhook_url: ""
+    severity_threshold: "medium"
+
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
+    severity_threshold: "medium"
+
+web:
+  enabled: true
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+
+database:
+  path: "data/results.db"
+
+logging:
+  level: "INFO"
+  file: "data/scanline.log"

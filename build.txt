@@ -1,0 +1,13 @@
+git clone https://github.com/yourrepo/scanline
+cd scanline
+
+cp .env.example .env
+nano .env
+
+docker-compose up -d
+
+docker-compose logs -f
+
+python -m pip install -r requirements.txt
+python src/main.py
+⚠️ Etik Kullanım Notu: Bu araç yalnızca kendi sistemlerinizi, izin verilen hedefleri veya açık kaynak OSINT çalışmaları için kullanılmalıdır. GitHub ToS'a uygun rate limiting uygulanmıştır. Başkalarına ait sistemlere izinsiz tarama yapmak yasaldır.
