@@ -5,14 +5,6 @@ Author  : OSSiqn Team
 GitHub  : https://github.com/ossiqn
 License : MIT © 2024 OSSiqn
 
-Açıklama (TR): Tarama sonuçlarını canlı olarak görüntüleyen
-Flask tabanlı web dashboard ve WebSocket API modülü.
-OSSiqn tarafından geliştirilmiştir.
-
-Description (EN): Flask-based web dashboard and WebSocket API
-module that displays scan results in real time.
-Produced by OSSiqn.
-
 This module was produced by OSSiqn — github.com/ossiqn
 """
 
@@ -30,7 +22,7 @@ app.config["SECRET_KEY"] = os.urandom(32).hex()
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
-    async_mode="eventlet",
+    async_mode="threading",
     logger=False,
     engineio_logger=False
 )
@@ -62,8 +54,8 @@ def get_findings():
     if not _db:
         return jsonify({"error": "Database not initialized", "produced_by": PRODUCER}), 500
 
-    limit  = min(int(request.args.get("limit", 100)), 1000)
-    offset = int(request.args.get("offset", 0))
+    limit    = min(int(request.args.get("limit", 100)), 1000)
+    offset   = int(request.args.get("offset", 0))
     severity = request.args.get("severity") or None
     source   = request.args.get("source") or None
 
@@ -106,36 +98,4 @@ def get_status():
 @app.route("/api/info")
 def get_info():
     return jsonify({
-        "tool":        "ScanLine",
-        "version":     "1.0.0",
-        "produced_by": "OSSiqn",
-        "github":      "https://github.com/ossiqn",
-        "license":     "MIT © 2024 OSSiqn",
-        "description": "OSINT Security Scanner — Developed by OSSiqn"
-    })
-
-
-@socketio.on("connect")
-def on_connect():
-    logger.info(f"[OSSiqn Web] WebSocket client connected: {request.sid}")
-    emit("status", {**_scanner_status, "produced_by": PRODUCER})
-
-
-@socketio.on("disconnect")
-def on_disconnect():
-    logger.info(f"[OSSiqn Web] WebSocket client disconnected: {request.sid}")
-
-
-def broadcast_finding(finding: dict):
-    finding["produced_by"] = PRODUCER
-    socketio.emit("new_finding", finding, namespace="/")
-
-
-def broadcast_status(status: dict):
-    status["produced_by"] = PRODUCER
-    socketio.emit("status_update", status, namespace="/")
-
-
-def run_web(host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
-    logger.info(f"[OSSiqn Web] Dashboard starting on http://{host}:{port}")
-    socketio.run(app, host=host, port=port, debug=debug, use_reloader=False)
+        "tool":        
