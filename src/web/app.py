@@ -10,7 +10,6 @@ This module was produced by OSSiqn — github.com/ossiqn
 
 import os
 import logging
-import threading
 from flask import Flask, render_template, jsonify, request, abort
 from flask_socketio import SocketIO, emit
 
@@ -19,9 +18,8 @@ logger = logging.getLogger("scanline.web")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32).hex()
-app.config["SECRET_KEY"] = os.urandom(32).hex()
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO()
 
 _db = None
 _scanner_status = {
@@ -135,6 +133,12 @@ def broadcast_status(status: dict):
 
 def run_web(host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
     logger.info(f"[OSSiqn Web] Dashboard starting on http://{host}:{port}")
+    socketio.init_app(
+        app,
+        cors_allowed_origins="*",
+        logger=False,
+        engineio_logger=False
+    )
     socketio.run(
         app,
         host=host,
