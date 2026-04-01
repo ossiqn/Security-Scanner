@@ -1,25 +1,12 @@
-"""
-ScanLine - OSINT Security Scanner
-Module  : Web Dashboard API & SocketIO
-Author  : OSSiqn Team
-GitHub  : https://github.com/ossiqn
-License : MIT © 2024 OSSiqn
-
-This module was produced by OSSiqn — github.com/ossiqn
-"""
-
 import os
 import logging
 from flask import Flask, render_template, jsonify, request, abort
-from flask_socketio import SocketIO, emit
 
 PRODUCER = "OSSiqn"
 logger = logging.getLogger("scanline.web")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32).hex()
-
-socketio = SocketIO()
 
 _db = None
 _scanner_status = {
@@ -29,6 +16,8 @@ _scanner_status = {
     "scan_start": None,
     "produced_by": "OSSiqn"
 }
+
+_clients = []
 
 
 def init_web(db, scanner_status: dict):
@@ -46,7 +35,7 @@ def index():
 @app.route("/api/findings")
 def get_findings():
     if not _db:
-        return jsonify({"error": "Database not initialized", "produced_by": PRODUCER}), 500
+        return jsonify({"error": "Database not initialized"}), 500
 
     limit    = min(int(request.args.get("limit", 100)), 1000)
     offset   = int(request.args.get("offset", 0))
@@ -71,7 +60,7 @@ def get_findings():
 @app.route("/api/stats")
 def get_stats():
     if not _db:
-        return jsonify({"error": "Database not initialized", "produced_by": PRODUCER}), 500
+        return jsonify({"error": "Database not initialized"}), 500
 
     stats = _db.get_stats()
     stats["scanner_status"] = _scanner_status
@@ -105,45 +94,24 @@ def get_info():
         "version":     "1.0.0",
         "produced_by": "OSSiqn",
         "github":      "https://github.com/ossiqn",
-        "license":     "MIT © 2024 OSSiqn",
-        "description": "OSINT Security Scanner — Developed by OSSiqn"
+        "license":     "MIT © 2024 OSSiqn"
     })
-
-
-@socketio.on("connect")
-def on_connect():
-    logger.info(f"[OSSiqn Web] Client connected: {request.sid}")
-    emit("status", {**_scanner_status, "produced_by": PRODUCER})
-
-
-@socketio.on("disconnect")
-def on_disconnect():
-    logger.info(f"[OSSiqn Web] Client disconnected: {request.sid}")
 
 
 def broadcast_finding(finding: dict):
     finding["produced_by"] = PRODUCER
-    socketio.emit("new_finding", finding)
 
 
 def broadcast_status(status: dict):
     status["produced_by"] = PRODUCER
-    socketio.emit("status_update", status)
 
 
 def run_web(host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
     logger.info(f"[OSSiqn Web] Dashboard starting on http://{host}:{port}")
-    socketio.init_app(
-        app,
-        cors_allowed_origins="*",
-        logger=False,
-        engineio_logger=False
-    )
-    socketio.run(
-        app,
+    app.run(
         host=host,
         port=port,
         debug=debug,
         use_reloader=False,
-        allow_unsafe_werkzeug=True
+        threaded=True
     )
