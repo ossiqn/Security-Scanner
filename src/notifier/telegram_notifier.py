@@ -1,21 +1,3 @@
-"""
-ScanLine - OSINT Security Scanner
-Module  : Telegram Notifier
-Author  : OSSiqn Team
-GitHub  : https://github.com/ossiqn
-License : MIT © 2024 OSSiqn
-
-Açıklama (TR): Tespit edilen güvenlik bulgularını Telegram Bot API
-üzerinden gerçek zamanlı olarak bildiren modül.
-OSSiqn tarafından geliştirilmiştir.
-
-Description (EN): Module that delivers real-time security finding
-alerts via Telegram Bot API.
-Produced by OSSiqn.
-
-This module was produced by OSSiqn — github.com/ossiqn
-"""
-
 import logging
 import requests
 from typing import Dict, List
@@ -31,14 +13,7 @@ SEVERITY_EMOJI = {
     "info":     "🔵"
 }
 
-
 class TelegramNotifier:
-    """
-    Telegram Bot API üzerinden bildirim gönderir.
-    Sends notifications via Telegram Bot API.
-
-    Produced by OSSiqn — https://github.com/ossiqn
-    """
 
     PRODUCER = "OSSiqn"
 
@@ -48,6 +23,7 @@ class TelegramNotifier:
         self.severity_threshold = severity_threshold
         self.severity_order = ["info", "low", "medium", "high", "critical"]
         self.api_base = f"https://api.telegram.org/bot{bot_token}"
+        
         logger.info(f"TelegramNotifier initialized | Produced by {self.PRODUCER}")
 
     def _should_notify(self, severity: str) -> bool:
@@ -71,10 +47,13 @@ class TelegramNotifier:
                 },
                 timeout=15
             )
+            
             if response.status_code == 200:
                 return True
+                
             logger.error(f"[OSSiqn Telegram] API error: {response.status_code}")
             return False
+            
         except Exception as e:
             logger.error(f"[OSSiqn Telegram] Send failed: {e}")
             return False
@@ -86,8 +65,8 @@ class TelegramNotifier:
             return False
 
         emoji = SEVERITY_EMOJI.get(severity, "⚪")
-
         description = finding.get("description", "")
+        
         if len(description) > 300:
             description = description[:300] + "..."
 
@@ -139,8 +118,11 @@ class TelegramNotifier:
 
     def send_batch_findings(self, findings: List[Dict]) -> int:
         notified = 0
+        
         for finding in findings:
             if self.send_finding(finding):
                 notified += 1
+                
         logger.info(f"[OSSiqn Telegram] Sent {notified}/{len(findings)} notifications")
+        
         return notified
